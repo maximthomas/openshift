@@ -27,9 +27,9 @@ metadata:
       server with a database created.  The database is stored on persistent storage.  The
       root DN, base DN, and password are chosen via parameters when provisioning
       this service.
-    openshift.io/provider-display-name: Open Identity Community.
-    openshift.io/support-url: http://openidentityplatform.org
-    tags: database,opendj
+    openshift.io/provider-display-name: Open Identity Platform Community.
+    openshift.io/support-url: http://www.openidentityplatform.org
+    tags: database,opendj,ldap
   name: opendj
 objects:
 #SECRET
