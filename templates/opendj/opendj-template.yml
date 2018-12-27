@@ -11,6 +11,7 @@ message: |-
           Base DN: ${OPENDJ_BASE_DN}
    Connection URL: ldap://${OPENDJ_SERVICE_NAME}:1389/
     Master Server: ${OPENDJ_MASTER_SERVER}
+    Secret Volume: ${OPENDJ_SECRET_VOLUME}
 
   For more information about using this template, including OpenShift considerations, see TODO: add urls.
 metadata:
@@ -32,7 +33,7 @@ metadata:
     tags: database,opendj,ldap
   name: opendj
 objects:
-#SECRET
+#Secret
 - apiVersion: v1
   kind: Secret
   metadata:
@@ -45,6 +46,8 @@ objects:
   stringData:
     opendj-root-password: ${OPENDJ_ROOT_PASSWORD}
     opend-root-user-dn: ${OPENDJ_ROOT_USER_DN}
+
+#Service
 - apiVersion: v1
   kind: Service
   metadata:
@@ -70,9 +73,12 @@ objects:
     selector:
       name: "${OPENDJ_SERVICE_NAME}"
     sessionAffinity: None
+    clusterIP: None
     type: ClusterIP
   status:
     loadBalancer: {}
+
+#PersistentVolumeClaim
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
@@ -95,7 +101,8 @@ objects:
   spec: {}
   status:
     dockerImageRepository: ''
-#BUILDCONFIG
+
+#BuildConfig
 - kind: BuildConfig
   apiVersion: v1
   metadata:
@@ -124,8 +131,12 @@ objects:
             value: ${OPENDJ_ROOT_USER_DN}
           - name: ROOT_PASSWORD
             value: ${OPENDJ_ROOT_PASSWORD}
-          - name: DJ_MASTER_SERVER
+          - name: MASTER_SERVER
             value: ${OPENDJ_MASTER_SERVER}
+          - name: SECRET_VOLUME
+            value: ${OPENDJ_SECRET_VOLUME}
+          - name: MYHOSTNAME
+            value: ${OPENDJ_SERVICE_NAME}
     output:
       to:
         kind: ImageStreamTag
@@ -163,6 +174,8 @@ objects:
           - containerPort: 1389
             protocol: TCP
           - containerPort: 1636
+            protocol: TCP
+          - containerPort: 4444
             protocol: TCP
           resources: {}
           terminationMessagePath: /dev/termination-log
@@ -218,5 +231,10 @@ parameters:
 - description: OpenDJ master server for replication.
   displayName: OpenDJ Master Server
   name: OPENDJ_MASTER_SERVER
-  value: ""
+  value:
+  required: false
+- description: Secret keystore volume.
+  displayName: Secret Keystore Volume
+  name: OPENDJ_SECRET_VOLUME
+  value:
   required: false
